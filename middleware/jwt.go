@@ -1,9 +1,10 @@
 package middleware
 
 import (
-	"common/auth"
+	"common/config"
 	"crypto/ecdsa"
 	"crypto/x509"
+	"encoding/base64"
 	"encoding/pem"
 	"fmt"
 	"net/http"
@@ -15,7 +16,7 @@ import (
 )
 
 // JwtMiddleware validates and verifies JWT from Authorization header
-func JwtMiddleware() gin.HandlerFunc {
+func JwtMiddleware(cfg config.Config) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Extract token from Authorization header
 		authHeader := c.GetHeader("Authorization")
@@ -33,8 +34,15 @@ func JwtMiddleware() gin.HandlerFunc {
 
 		tokenString := parts[1]
 
+		base64Decoded, err := decodeBase64(cfg.Base64JwtPublicKey)
+		if err != nil {
+			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+				"msg": "cannot decode base64",
+			})
+		}
+
 		// Parse public key
-		publicKey, err := parsePublicKey(auth.JwtPublicKey)
+		publicKey, err := parsePublicKey(base64Decoded)
 		if err != nil {
 			c.AbortWithStatus(http.StatusInternalServerError)
 			return
@@ -95,4 +103,13 @@ func parsePublicKey(key string) (*ecdsa.PublicKey, error) {
 	}
 
 	return publicKey, nil
+}
+
+func decodeBase64(encoded string) (string, error) {
+	decoded, err := base64.StdEncoding.DecodeString(encoded)
+	if err != nil {
+		return "", err
+	}
+
+	return string(decoded), nil
 }

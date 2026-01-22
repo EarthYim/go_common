@@ -39,9 +39,11 @@ func main() {
 		c.Status(http.StatusOK)
 	})
 
-	r.GET("/token", auth.AdminLoginHandler)
+	authHandler := auth.NewAuthHandler(cfg)
 
-	r.Use(middleware.JwtMiddleware())
+	r.GET("/token", authHandler.AdminLoginHandler)
+
+	r.Use(middleware.JwtMiddleware(cfg))
 	r.GET("/auth/test", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"msg": "you're in",

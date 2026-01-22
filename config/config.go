@@ -13,6 +13,9 @@ import (
 
 type Config struct {
 	LogLevel string `env:"LOG_LEVEL"`
+
+	Base64JwtPrivateKey string `env:"SECRET_JWT_PRIVATE_KEY"`
+	Base64JwtPublicKey  string `env:"SECRET_JWT_PUBLIC_KEY"`
 }
 
 var once sync.Once

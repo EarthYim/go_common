@@ -23,6 +23,8 @@ services:
       - redis
     networks:
       - app-network
+    env_file:
+      - .env
 
 volumes:
   redis_data:
