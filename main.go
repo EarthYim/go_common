@@ -6,14 +6,14 @@ import (
 	"common/logger"
 	"common/middleware"
 	"common/redis"
+
 	"context"
 	"fmt"
+	"net/http"
+	"os"
 	"os/signal"
 	"syscall"
 	"time"
-
-	"net/http"
-	"os"
 
 	"github.com/gin-gonic/gin"
 )
@@ -34,8 +34,6 @@ func main() {
 	r := gin.Default()
 	r.Use(middleware.LoggerMiddleware(slog))
 	r.GET("/health", func(c *gin.Context) {
-		// log := logger.Logger(c.Request.Context())
-		// log.Info("Healthy")
 		c.Status(http.StatusOK)
 	})
 
@@ -58,6 +56,7 @@ func main() {
 
 	idleConnsClosed := make(chan struct{})
 
+	// gracefull shutdown
 	go func() {
 		sigint := make(chan os.Signal, 1)
 		signal.Notify(sigint, syscall.SIGINT, syscall.SIGTERM)
@@ -65,11 +64,9 @@ func main() {
 
 		d := time.Duration(5 * time.Second)
 		fmt.Printf("shutting down int %s ...", d)
-		// We received an interrupt signal, shut down.
 		ctx, cancel := context.WithTimeout(context.Background(), d)
 		defer cancel()
 		if err := srv.Shutdown(ctx); err != nil {
-			// Error from closing listeners, or context timeout:
 			slog.Info("HTTP server Shutdown: " + err.Error())
 		}
 		close(idleConnsClosed)
