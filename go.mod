@@ -5,6 +5,7 @@ go 1.24.4
 require (
 	github.com/caarlos0/env/v11 v11.3.1
 	github.com/gin-gonic/gin v1.11.0
+	github.com/golang-jwt/jwt v3.2.2+incompatible
 	github.com/google/uuid v1.6.0
 	github.com/redis/go-redis/v9 v9.17.2
 )

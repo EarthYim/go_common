@@ -1,6 +1,7 @@
 package main
 
 import (
+	"common/auth"
 	"common/config"
 	"common/logger"
 	"common/middleware"
@@ -36,6 +37,15 @@ func main() {
 		// log := logger.Logger(c.Request.Context())
 		// log.Info("Healthy")
 		c.Status(http.StatusOK)
+	})
+
+	r.GET("/token", auth.AdminLoginHandler)
+
+	r.Use(middleware.JwtMiddleware())
+	r.GET("/auth/test", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{
+			"msg": "you're in",
+		})
 	})
 
 	srv := http.Server{
