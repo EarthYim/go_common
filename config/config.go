@@ -16,6 +16,26 @@ type Config struct {
 
 	Base64JwtPrivateKey string `env:"SECRET_JWT_PRIVATE_KEY"`
 	Base64JwtPublicKey  string `env:"SECRET_JWT_PUBLIC_KEY"`
+
+	RateLimiter RateLimiter
+	Redis       RedisCfg
+}
+
+type RateLimiter struct {
+	ClientLimitNormal    int `env:"RATE_LIMIT_CLIENT_NORMAL"`
+	ClientLimitThrottled int `env:"RATE_LIMIT_CLIENT_THROTTLED"`
+
+	AuthLimit   int `env:"RATE_LIMIT_AUTH"`
+	GlobalLimit int `env:"RATE_LIMIT_GLOBAL"`
+
+	LimitWindow int `env:"RATE_LIMIT_WINDOW"` // seconds
+}
+
+type RedisCfg struct {
+	Addr1      string `env:"REDIS_ADDR_1"`
+	Password   string `env:"REDIS_PASSWORD"`
+	TlsEanbled bool   `env:"REDIS_TLS"`
+	CaCertPath string `env:"REDIS_CA_CERT_PATH"`
 }
 
 var once sync.Once

@@ -15,6 +15,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -28,14 +29,42 @@ func main() {
 	slog.Info("Starting Server...")
 
 	// db and redis connection
-	_ = redis.NewConnection(cfg)
+	rdb := redis.NewConnection(cfg)
+	defer rdb.Close()
 
 	// init Gin router
 	r := gin.Default()
-	r.Use(middleware.LoggerMiddleware(slog))
+	r.GET("/", func(c *gin.Context) {
+		c.String(200, "ok")
+	})
 	r.GET("/health", func(c *gin.Context) {
 		c.Status(http.StatusOK)
 	})
+
+	corsOpts := cors.Config{
+		AllowOrigins: []string{
+			"http://localhost:3000",
+			"http://localhost:3001",
+			"https://classroom.badstudent.co",
+			"https://sensei.badstudent.co",
+		},
+		AllowMethods: []string{
+			"GET", "POST", "OPTIONS",
+		},
+		AllowHeaders: []string{
+			"Authorization",
+			"Content-Type",
+		},
+		ExposeHeaders: []string{
+			"Authorization",
+		},
+		AllowCredentials: true,
+		MaxAge:           12 * time.Hour,
+	}
+	// Add CORS middleware
+	r.Use(cors.New(corsOpts))
+
+	r.Use(middleware.LoggerMiddleware(slog))
 
 	authHandler := auth.NewAuthHandler(cfg)
 

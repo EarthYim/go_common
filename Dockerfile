@@ -16,7 +16,7 @@ RUN go mod download
 COPY . .
 
 # Build the application === x86
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=arm64 go build -o app main.go
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o runtime main.go
 
 # Runtime stage
 FROM alpine:latest
@@ -27,10 +27,10 @@ WORKDIR /root/
 RUN apk --no-cache add ca-certificates
 
 # Copy binary from builder
-COPY --from=builder /build/app .
+COPY --from=builder /build/runtime .
 
 # Expose port 8080
 EXPOSE 8080
 
 # Set entrypoint
-ENTRYPOINT ["./app"]
+ENTRYPOINT ["./runtime"]
