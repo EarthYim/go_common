@@ -45,8 +45,6 @@ func main() {
 		AllowOrigins: []string{
 			"http://localhost:3000",
 			"http://localhost:3001",
-			"https://classroom.badstudent.co",
-			"https://sensei.badstudent.co",
 		},
 		AllowMethods: []string{
 			"GET", "POST", "OPTIONS",
